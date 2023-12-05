@@ -29,9 +29,7 @@ def login(username, password):
 
 # Function to record last_login
 def last_login(user_id):
-    cursor = connection.cursor()
-    # naive error handling 
-    
+    cursor = connection.cursor()    
     try:
         cursor.execute("""
                 UPDATE users
@@ -57,8 +55,24 @@ def create_account(username, password, email=None):
 
 
 # Function for users to reset password 
-def reset_password(): 
-    pass 
+def reset_password(username, email, password): 
+    cursor = connection.cursor()
+    try:
+        _result = cursor.execute("""SELECT User_ID FROM Users WHERE User_Name='{}' AND Email = '{}' """.format(username, email))
+        user_id = transform(cursor)[0].get('User_ID')
+    except: 
+        _result = 0
+
+    if _result > 0: 
+        cursor.execute("""UPDATE users
+            SET Password = '{}'
+            WHERE User_ID = {}
+                """.format(password, user_id))
+        connection.commit()
+        result = True
+    
+    return result
+    
 
 # Function for users 
 def all_flights():

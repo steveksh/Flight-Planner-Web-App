@@ -13,6 +13,7 @@ def user():
         password = request.json.get('password')
         response = login(username, password)
 
+        # updating the last login column as well 
         if len(response)>0:
             last_login(response[0].get('User_ID'))
             
@@ -24,7 +25,6 @@ def overview():
     if request.method == "GET":
         response = all_flights()
         return jsonify(response)
-    
 
 # End point for creating a new account 
 @app.route('/create', methods = ['PUT'])
@@ -40,6 +40,23 @@ def create():
         response = {'status': 500}
     
     return jsonify(response)
+
+# End point for resetting the 
+@app.route('/reset_password', methods = ['PUT'])
+def reset():
+    result = None
+    if request.method == 'PUT':
+        username = request.json.get('username')
+        email = request.json.get('email')
+        password = request.json.get('password')
+        result = reset_password(username, email, password)
+    if result: 
+        response = {'status': 200}
+    elif not result: 
+        response = {'status': 500}
+
+    return jsonify(response)
+
 
 
 if __name__ == "__main__":
