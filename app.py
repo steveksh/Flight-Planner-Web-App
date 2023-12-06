@@ -8,13 +8,13 @@ from app_modules.utils import *
 
 # Header 
 com.iframe("https://lottie.host/embed/b488bb3a-4c39-432e-8e11-ea0692d35560/XdNwCxlslm.json", height= 200)
-st.title("Welcome to Our Airline Booking System")
-
+st.title("Airlines Booking System")
 
     
 def main():
-    login = False
-       
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
+        
     menu = ["🔐 Login", "📝 Signup", "❓ Reset Password"]
     choice = st.sidebar.selectbox("Menu", menu)
     if choice == "📝 Signup":
@@ -23,21 +23,27 @@ def main():
 
     elif choice == '🔐 Login':
         with st.sidebar:
-            login = user_login()
+            user_login()
     elif choice == '❓ Reset Password':
         with st.sidebar:
             forgot()
    
-    if login: 
+    if st.session_state['logged_in']: 
+        st.markdown(f"Welcome Back {st.session_state['username']} !")
         option = st.selectbox(
-        "How would you like to be contacted?",
-        ("View Flights", "🔥Special Offers", "🎟️Purchased Tickets"))
-        if option=='View Flights':
-            st.table(flight_overview())
-        elif option=="🔥Special Offers":
+        "Select an option:",
+        ("🛫 View Flights", "🔥 Special Offers", "🎟️ Purchased Tickets"))
+        
+        if option=='🛫 View Flights':
+            flight_overview()
+
+        elif option=="🔥 Special Offers":
             st.markdown('spcial offer')
-        elif option=="🎟️Purchased Tickets":
+        elif option=="🎟️ Purchased Tickets":
             st.markdown('pruchase tickets')
+
+    elif not st.session_state['logged_in']: 
+        st.markdown('Please login with the sidebar to continue')
 
 
 if __name__ == "__main__":

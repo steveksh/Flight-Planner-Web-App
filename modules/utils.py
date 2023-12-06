@@ -3,6 +3,7 @@ import sys
 sys.path.append('../')
 from config import * 
 import pymysql 
+import pandas as pd 
 
 # Creating SQL Connector 
 connection = pymysql.connect(host=HOST,
@@ -45,12 +46,13 @@ def create_account(username, password, email=None):
     cursor = connection.cursor()
     try:
         cursor.execute(""" INSERT INTO users (User_Name, Creation_Date, Last_Login, Password, Email)\
-                 VALUES ('{}',CURRENT_TIMESTAMP,NULL,'{}','{}');
-                 """.format(username,password,email))
+                VALUES ('{}',CURRENT_TIMESTAMP,NULL,'{}','{}');
+                """.format(username,password,email))
         connection.commit()
         result = True
     except: 
         result = False
+
     return result 
 
 
@@ -84,21 +86,21 @@ def all_flights():
         result = []
     return result
 
-# Function to show avaliable destinations 
-def destination(): 
-    cursor = connection.cursor()
-    try: 
-        cursor.execute("SELECT DISTINCT Arrival_City FROM flights")
-        result = transform(cursor)
-    except:
-        result = []
-    return result
-
 # Function to show all avaliable origin
 def origin(): 
     cursor = connection.cursor()
     try: 
         cursor.execute("SELECT DISTINCT Departure_City FROM flights")
+        result = transform(cursor)
+    except:
+        result = []
+    return result
+
+# Function to show avaliable destinations 
+def destination(): 
+    cursor = connection.cursor()
+    try: 
+        cursor.execute("SELECT DISTINCT Arrival_City FROM flights")
         result = transform(cursor)
     except:
         result = []

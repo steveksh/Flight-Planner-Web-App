@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from modules.utils import * 
+import pandas as pd 
 
 app = Flask(__name__)
 
@@ -25,6 +26,13 @@ def overview():
     if request.method == "GET":
         response = all_flights()
         return jsonify(response)
+    
+# End point for getting all origin 
+@app.route('/departure', methods=["GET"])
+def departure():
+    if request.method == "GET":
+        response = origin()
+        return jsonify(response)
 
 # End point for creating a new account 
 @app.route('/create', methods = ['PUT'])
@@ -41,7 +49,7 @@ def create():
     
     return jsonify(response)
 
-# End point for resetting the 
+# End point for resetting the password
 @app.route('/reset_password', methods = ['PUT'])
 def reset():
     result = None
@@ -58,6 +66,5 @@ def reset():
     return jsonify(response)
 
 
-
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
