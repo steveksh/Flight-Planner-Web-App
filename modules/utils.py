@@ -173,7 +173,9 @@ def purchase_ticket(flight_id, userid, reference_number):
 def orders(user_id): 
     cursor = connection.cursor()
     try: 
-        cursor.execute("""SELECT * FROM orders
+        cursor.execute("""SELECT Reference_Number, Order_Date, Flight_ID, Departure_City, 
+                       Arrival_City, Departure_Date FROM orders
+                       JOIN flights USING(Flight_ID)
                        WHERE User_ID = '{}'
                        """.format(user_id))
         result = transform(cursor)
