@@ -12,6 +12,8 @@ connection = pymysql.connect(host=HOST,
                              db=db,
                              charset='utf8mb4')
 
+cursor = connection.cursor()
+
 def transform(cursor):
      columns = [d[0] for d in cursor.description]
      result = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -19,7 +21,6 @@ def transform(cursor):
 
 # Function for user login 
 def login(username, password):
-    cursor = connection.cursor()
     # naive error handling 
     try:
         cursor.execute("""SELECT User_ID FROM Users WHERE User_Name='{}' AND Password = '{}' """.format(username, password))
@@ -30,7 +31,6 @@ def login(username, password):
 
 # Function to record last_login
 def last_login(user_id):
-    cursor = connection.cursor()    
     try:
         cursor.execute("""
                 UPDATE users
@@ -43,7 +43,6 @@ def last_login(user_id):
 
 # Function for users to create an account 
 def create_account(username, password, email=None):
-    cursor = connection.cursor()
     try:
         cursor.execute(""" INSERT INTO users (User_Name, Creation_Date, Last_Login, Password, Email)\
                 VALUES ('{}',CURRENT_TIMESTAMP,NULL,'{}','{}');
@@ -58,7 +57,6 @@ def create_account(username, password, email=None):
 
 # Function for users to reset password 
 def reset_password(username, email, password): 
-    cursor = connection.cursor()
     try:
         _result = cursor.execute("""SELECT User_ID FROM Users WHERE User_Name='{}' AND Email = '{}' """.format(username, email))
         user_id = transform(cursor)[0].get('User_ID')
@@ -78,7 +76,6 @@ def reset_password(username, email, password):
 
 # Function to show all avaliable origin
 def origin(): 
-    cursor = connection.cursor()
     try: 
         cursor.execute("SELECT DISTINCT Departure_City FROM flights")
         result = transform(cursor)
@@ -88,7 +85,6 @@ def origin():
 
 # Function to show avaliable destinations 
 def destinations(selected_origin): 
-    cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT DISTINCT Arrival_City FROM flights 
                        WHERE Departure_City = '{}'
@@ -99,7 +95,7 @@ def destinations(selected_origin):
     return result
 
 def flight_companies(selected_origin,selected_destination):
-    cursor = connection.cursor()
+    # cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT DISTINCT Flight_Company FROM flights
                        WHERE Departure_City = '{}'
@@ -113,7 +109,6 @@ def flight_companies(selected_origin,selected_destination):
 
 # Function for user to buy a ticket 
 def flight_search(selected_origin, selected_destination, selected_company, start_date, end_date):
-    cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT * FROM flights
                        WHERE Departure_City = '{}' AND Arrival_City = '{}'
@@ -133,7 +128,6 @@ def flight_search(selected_origin, selected_destination, selected_company, start
 
 # Function to check if seats are avaliable 
 def check_flights(flight_id):
-    cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT Available_Seats FROM flights WHERE
                        Flight_ID = {}
@@ -147,8 +141,7 @@ def check_flights(flight_id):
     return result
 
 # function for user to purchase a ticket 
-def purchase_ticket(flight_id, userid, reference_number): 
-    cursor = connection.cursor()
+def purchase_ticket(flight_id, userid, reference_number ): 
     try:
         
         # Available Seats - 1 
@@ -171,7 +164,6 @@ def purchase_ticket(flight_id, userid, reference_number):
 
 # Function to show all tickets purchased by user 
 def orders(user_id): 
-    cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT Reference_Number, Order_Date, Flight_ID, Departure_City, 
                        Arrival_City, Departure_Date FROM orders
@@ -185,7 +177,6 @@ def orders(user_id):
 
 # Function to show all special offers
 def special_offers(): 
-    cursor = connection.cursor()
     try: 
         cursor.execute("""SELECT Flight_ID, Departure_City, Arrival_City,
                        Departure_Date, Promotion 
@@ -198,7 +189,6 @@ def special_offers():
 
 # Function for ticket refunds
 def refunds(ticket_id, reference_number, reason):
-    cursor = connection.cursor()
     try:
         cursor.execute(""" INSERT INTO refunds\
                 VALUES ('{}','{}','{}',CURRENT_TIMESTAMP);
@@ -212,7 +202,6 @@ def refunds(ticket_id, reference_number, reason):
 
 # Function to show all refund requests
 def refund_tickets(user_id):
-    cursor = connection.cursor()
     try:
         cursor.execute("""SELECT Reference_Number, Creation_Date, Flight_ID, 
                        Remarks FROM flights.refunds

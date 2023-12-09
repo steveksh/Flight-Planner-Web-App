@@ -42,7 +42,7 @@ def flight_overview():
     origin_response = requests.get(API_URL + "/departure")
     origins = pd.DataFrame(origin_response.json()).Departure_City.to_list()
     selected_origin = st.selectbox("🛫 Select your Origin", options=origins)
-
+    
     # Show all avaliable flight company 
     destination_response = requests.post(API_URL + "/destination",
                                         json = {

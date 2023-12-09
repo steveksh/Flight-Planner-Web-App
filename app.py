@@ -18,16 +18,14 @@ def main():
     menu = ["🔐 Login", "📝 Signup", "❓ Reset Password"]
     choice = st.sidebar.selectbox("Menu", menu)
 
-    if choice == "📝 Signup":
-        with st.sidebar:
+    with st.sidebar:
+        if choice == "📝 Signup":
             create_account()
 
-    elif choice == '🔐 Login':
-        with st.sidebar:
+        elif choice == '🔐 Login':
             user_login()
-    elif choice == '❓ Reset Password':
-        with st.sidebar:
-            forgot()
+        elif choice == '❓ Reset Password':
+                forgot()
    
     if st.session_state['logged_in']: 
 
