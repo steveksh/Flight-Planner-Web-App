@@ -31,9 +31,8 @@ def main():
    
     if st.session_state['logged_in']: 
 
-        # st.markdown(f"Welcome Back {st.session_state['username']} !")
+        st.markdown(f"Welcome Back {st.session_state['username']} !")
 
-        st.markdown(f"Welcome Back {st.session_state['user_id']} !")
         option = st.selectbox(
         "Select an option:",
         ("🔍 View Flights", "🔥 Special Offers", "🎟️ Purchased Tickets", "📑 Refund Requests"))
