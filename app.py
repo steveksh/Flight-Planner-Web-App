@@ -17,6 +17,7 @@ def main():
         
     menu = ["🔐 Login", "📝 Signup", "❓ Reset Password"]
     choice = st.sidebar.selectbox("Menu", menu)
+
     if choice == "📝 Signup":
         with st.sidebar:
             create_account()
@@ -29,19 +30,28 @@ def main():
             forgot()
    
     if st.session_state['logged_in']: 
-        st.markdown(f"Welcome Back {st.session_state['username']} !")
+
+        # st.markdown(f"Welcome Back {st.session_state['username']} !")
+
+        st.markdown(f"Welcome Back {st.session_state['user_id']} !")
         option = st.selectbox(
         "Select an option:",
-        ("🛫 View Flights", "🔥 Special Offers", "🎟️ Purchased Tickets"))
+        ("🔍 View Flights", "🔥 Special Offers", "🎟️ Purchased Tickets", "📑 Refund Requests"))
         
-        if option=='🛫 View Flights':
+        st.divider()
+
+        if option=='🔍 View Flights':
             flight_overview()
 
         elif option=="🔥 Special Offers":
-            st.markdown('spcial offer')
-        elif option=="🎟️ Purchased Tickets":
-            st.markdown('pruchase tickets')
+            special_offers()
 
+        elif option=="🎟️ Purchased Tickets":
+            orders()
+
+        else: 
+            refund_tickets()
+            
     elif not st.session_state['logged_in']: 
         st.markdown('Please login with the sidebar to continue')
 

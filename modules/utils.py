@@ -76,16 +76,6 @@ def reset_password(username, email, password):
     return result
     
 
-# Function for users 
-def all_flights():
-    cursor = connection.cursor()
-    try: 
-        cursor.execute("SELECT * FROM flights")
-        result = transform(cursor)
-    except:
-        result = []
-    return result
-
 # Function to show all avaliable origin
 def origin(): 
     cursor = connection.cursor()
@@ -97,36 +87,138 @@ def origin():
     return result
 
 # Function to show avaliable destinations 
-def destination(): 
+def destinations(selected_origin): 
     cursor = connection.cursor()
     try: 
-        cursor.execute("SELECT DISTINCT Arrival_City FROM flights")
+        cursor.execute("""SELECT DISTINCT Arrival_City FROM flights 
+                       WHERE Departure_City = '{}'
+                       """.format(selected_origin))
         result = transform(cursor)
     except:
         result = []
     return result
 
-def flight_company():
+def flight_companies(selected_origin,selected_destination):
     cursor = connection.cursor()
     try: 
-        cursor.execute("SELECT DISTINCT Flight_Company FROM flights")
+        cursor.execute("""SELECT DISTINCT Flight_Company FROM flights
+                       WHERE Departure_City = '{}'
+                       AND
+                       Arrival_City = '{}'
+                       """.format(selected_origin, selected_destination))
         result = transform(cursor)
     except:
         result = []
     return result
 
 # Function for user to buy a ticket 
-def flight_search():
+def flight_search(selected_origin, selected_destination, selected_company, start_date, end_date):
     cursor = connection.cursor()
     try: 
-        cursor.execute(""""SELECT * FROM flights
-                       WHERE""")
+        cursor.execute("""SELECT * FROM flights
+                       WHERE Departure_City = '{}' AND Arrival_City = '{}'
+                       AND Flight_Company = '{}' AND
+                       Departure_Date BETWEEN '{}' AND '{}'
+                       """.format(selected_origin,
+                                   selected_destination, 
+                                   selected_company, 
+                                   start_date,
+                                   end_date))
+        result = transform(cursor)
+    except:
+        result = []
+    
+    return result
+
+
+# Function to check if seats are avaliable 
+def check_flights(flight_id):
+    cursor = connection.cursor()
+    try: 
+        cursor.execute("""SELECT Available_Seats FROM flights WHERE
+                       Flight_ID = {}
+                       """.format(flight_id))
+        query_result = transform(cursor)
+        result = query_result[0].get('Available_Seats') > 0
+
+    except:
+       result = False 
+    
+    return result
+
+# function for user to purchase a ticket 
+def purchase_ticket(flight_id, userid, reference_number): 
+    cursor = connection.cursor()
+    try:
+        
+        # Available Seats - 1 
+        cursor.execute("""UPDATE flights
+            SET Available_Seats = (Available_Seats - 1)
+            WHERE Flight_ID = {0}""".format(flight_id))
+        
+        # Purchased tickets + 1 
+        cursor.execute("""
+                INSERT INTO orders (Flight_ID, User_ID, Reference_Number, Order_Date)
+                VALUES({0},{1},'{2}',CURRENT_TIMESTAMP);""".format(flight_id, userid, reference_number))
+        connection.commit()
+
+        result = True
+    except: 
+        result = False 
+    
+    return result
+
+
+# Function to show all tickets purchased by user 
+def orders(user_id): 
+    cursor = connection.cursor()
+    try: 
+        cursor.execute("""SELECT * FROM orders
+                       WHERE User_ID = '{}'
+                       """.format(user_id))
         result = transform(cursor)
     except:
         result = []
     return result
 
-# Function to show the tickets currently owned by the user 
-# uuid need reference 
+# Function to show all special offers
+def special_offers(): 
+    cursor = connection.cursor()
+    try: 
+        cursor.execute("""SELECT Flight_ID, Departure_City, Arrival_City,
+                       Departure_Date, Promotion 
+                       FROM special_offers
+                       JOIN flights USING(Flight_ID);""")
+        result = transform(cursor)
+    except:
+        result = []
+    return result
 
+# Function for ticket refunds
+def refunds(ticket_id, reference_number, reason):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(""" INSERT INTO refunds\
+                VALUES ('{}','{}','{}',CURRENT_TIMESTAMP);
+                """.format(reference_number,ticket_id,reason))
+        connection.commit()
+        result = True
+    except: 
+        result = False
 
+    return result 
+
+# Function to show all refund requests
+def refund_tickets(user_id):
+    cursor = connection.cursor()
+    try:
+        cursor.execute("""SELECT Reference_Number, Creation_Date, Flight_ID, 
+                       Remarks FROM flights.refunds
+                       JOIN orders USING(Reference_Number)
+                       WHERE User_ID = {};
+                """.format(user_id))
+        result = transform(cursor)
+    except: 
+        result = []
+
+    return result
